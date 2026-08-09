@@ -13,6 +13,10 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
 use Laravel\Fortify\Fortify;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -42,6 +46,35 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::registerView(function () {
             return view('user.register');
         });
+
+        Fortify::verifyEmailView(function () {
+            return view('auth.verify-email');
+        });
+
+        Fortify::authenticateUsing(
+            function (Request $request) {
+
+                Validator::make($request->all(), [
+                    'email' => ['required'],
+                    'password' => ['required'],
+                ], [
+                    'email.required' => 'メールアドレスを入力してください',
+                    'password.required' => 'パスワードを入力してください',
+                ])->validate();
+
+                $user = User::where('email', $request->email)->first();
+
+                if (!$user || !Hash::check($request->password, $user->password)) {
+                    throw ValidationException::withMessages([
+                        'email' => ['ログイン情報が登録されていません'],
+                    ]);
+                }
+
+                return $user;
+            }
+        );
+
+
 
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())) . '|' . $request->ip());

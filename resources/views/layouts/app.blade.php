@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +16,7 @@
     <header class="header">
         <div class="header__inner">
             <a class="header__logo" href="/">
-                <img class="header__logo--img" src="{{ asset('images/logo.svg') }}" alt="logo">
+                <img class="header__logo--img" src="{{ asset('images/logo.png') }}" alt="勤怠管理システム">
             </a>
             @if(Auth::check())
             <form action="/logout" method="post">
@@ -37,4 +38,5 @@
         @yield('content')
     </main>
 </body>
+
 </html>
