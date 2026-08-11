@@ -20,4 +20,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/attendance', [AttendanceController::class, 'index']);
     Route::get('/attendance/list', [AttendanceController::class, 'list']);
+    Route::post('/attendance', [AttendanceController::class, 'store']);
 });

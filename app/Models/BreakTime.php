@@ -9,6 +9,12 @@ class BreakTime extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'attendance_id',
+        'break_start',
+        'break_end',
+    ];
+
     protected $table = 'breaks';
 
     public function attendance()
