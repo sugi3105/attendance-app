@@ -31,9 +31,75 @@ class AttendanceController extends Controller
         ));
     }
 
-    public function list()
+    public function list(Request $request)
     {
-        return view('user.user-attendance-list');
+        // ログインしているユーザーを取得
+        $user = auth()->user();
+
+        // URLにdateがあればその月、なければ今月
+        $date = $request->input('date')
+            ? Carbon::parse($request->input('date'))
+            : Carbon::now();
+
+        $previousMonth = $date->copy()->subMonth()->format('Y-m');
+        $nextMonth = $date->copy()->addMonth()->format('Y-m');
+
+        $attendanceRecords = Attendance::where('user_id', $user->id)
+            ->whereYear('work_date', $date->year)
+            ->whereMonth('work_date', $date->month)
+            ->get();
+
+        $formattedAttendanceRecords = [];
+
+        foreach ($attendanceRecords as $attendance) {
+
+            $breaks = BreakTime::where('attendance_id', $attendance->id)->get();
+
+            $totalBreakMinutes = 0;
+
+            foreach ($breaks as $break) {
+                if ($break->break_start && $break->break_end) {
+                    $breakStart = Carbon::parse($break->break_start);
+                    $breakEnd = Carbon::parse($break->break_end);
+
+                    $totalBreakMinutes += $breakStart->diffInMinutes($breakEnd);
+                }
+            }
+            $totalWorkMinutes = null;
+
+            if ($attendance->clock_out) {
+                $clockIn = Carbon::parse($attendance->clock_in);
+                $clockOut = Carbon::parse($attendance->clock_out);
+
+                $totalWorkMinutes =
+                    $clockIn->diffInMinutes($clockOut) - $totalBreakMinutes;
+            }
+
+            $formattedAttendanceRecords[] = [
+                'id' => $attendance->id,
+                'date' => Carbon::parse($attendance->work_date)->format('m/d'),
+                'clock_in' => $attendance->clock_in
+                    ? Carbon::parse($attendance->clock_in)->format('H:i')
+                    : '',
+                'clock_out' => $attendance->clock_out
+                    ? Carbon::parse($attendance->clock_out)->format('H:i')
+                    : '',
+                'total_break_time' => $totalBreakMinutes > 0
+                    ? sprintf('%02d:%02d', intdiv($totalBreakMinutes, 60), $totalBreakMinutes % 60)
+                    : null,
+                'total_time' => $totalWorkMinutes !== null
+                    ? sprintf('%02d:%02d', intdiv($totalWorkMinutes, 60), $totalWorkMinutes % 60)
+                    : null,
+            ];
+        }
+
+        return view('user.user-attendance-list', compact(
+            'user',
+            'date',
+            'previousMonth',
+            'nextMonth',
+            'formattedAttendanceRecords'
+        ));
     }
 
     public function store(Request $request)
