@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\Attendance;
 use App\Models\BreakTime;
+use App\Models\AttendanceRequest;
 use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
@@ -33,10 +34,8 @@ class AttendanceController extends Controller
 
     public function list(Request $request)
     {
-        // ログインしているユーザーを取得
         $user = auth()->user();
 
-        // URLにdateがあればその月、なければ今月
         $date = $request->input('date')
             ? Carbon::parse($request->input('date'))
             : Carbon::now();
@@ -151,5 +150,49 @@ class AttendanceController extends Controller
         }
 
         return redirect('/attendance');
+    }
+
+
+    public function detail($id)
+    {
+        $user = auth()->user();
+
+        $attendance = Attendance::where('id', $id)->first();
+
+        $breaks = BreakTime::where('attendance_id', $attendance->id)->get();
+
+        $application = AttendanceRequest::where(
+            'attendance_id',
+            $attendance->id
+        )->first();
+
+        $workDate = Carbon::parse($attendance->work_date);
+
+        $data = [
+            'id' => $attendance->id,
+            'year' => $workDate->format('Y年'),
+            'date' => $workDate->format('m/d'),
+            'clock_in' => $attendance->clock_in
+                ? Carbon::parse($attendance->clock_in)->format('H:i')
+                : '',
+            'clock_out' => $attendance->clock_out
+                ? Carbon::parse($attendance->clock_out)->format('H:i')
+                : '',
+            'breaks' => $breaks->map(function ($break) {
+                return [
+                    'break_in' => Carbon::parse($break->break_start)->format('H:i'),
+                    'break_out' => $break->break_end
+                        ? Carbon::parse($break->break_end)->format('H:i')
+                        : '',
+                ];
+            })->toArray(),
+            'comment' => $attendance->note,
+            'application' => $application,
+        ];
+
+        return view('user.user-detail', compact(
+            'user',
+            'data'
+        ));
     }
 }
