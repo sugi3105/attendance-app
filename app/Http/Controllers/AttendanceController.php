@@ -195,4 +195,36 @@ class AttendanceController extends Controller
             'data'
         ));
     }
+
+    public function approve($id)
+    {
+        $application = AttendanceRequest::findOrFail($id);
+
+        $attendance = Attendance::findOrFail($application->attendance_id);
+
+        $attendance->update([
+            'clock_in' => $application->requested_clock_in,
+            'clock_out' => $application->requested_clock_out,
+            'note' => $application->note,
+        ]);
+
+        $application->update([
+            'status' => '承認済み',
+        ]);
+
+        return redirect('/admin/attendance/requests');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $attendance = Attendance::where('id', $id)->first();
+        AttendanceRequest::create([
+            'attendance_id' => $attendance->id,
+            'requested_clock_in' => $request->new_clock_in,
+            'requested_clock_out' => $request->new_clock_out,
+            'note' => $request->comment,
+            'status' => '承認待ち',
+        ]);
+        return redirect('/attendance/' . $id);
+    }
 }

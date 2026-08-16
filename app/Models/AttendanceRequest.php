@@ -9,6 +9,15 @@ class AttendanceRequest extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'attendance_id',
+        'requested_clock_in',
+        'requested_clock_out',
+        'note',
+        'status',
+    ];
+
+
     public function attendance()
     {
         return $this->belongsTo(Attendance::class);
