@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\Attendance;
 use App\Models\BreakTime;
-use App\Models\AttendanceRequest;
+use App\Models\AttendanceRequest as AttendanceRequestModel;
 use Illuminate\Http\Request;
+use App\Http\Requests\AttendanceRequest;
 
 class AttendanceController extends Controller
 {
@@ -161,7 +162,7 @@ class AttendanceController extends Controller
 
         $breaks = BreakTime::where('attendance_id', $attendance->id)->get();
 
-        $application = AttendanceRequest::where(
+        $application = AttendanceRequestModel::where(
             'attendance_id',
             $attendance->id
         )->first();
@@ -215,10 +216,10 @@ class AttendanceController extends Controller
         return redirect('/admin/attendance/requests');
     }
 
-    public function update(Request $request, $id)
+    public function update(AttendanceRequest $request, $id)
     {
         $attendance = Attendance::where('id', $id)->first();
-        AttendanceRequest::create([
+        AttendanceRequestModel::create([
             'attendance_id' => $attendance->id,
             'requested_clock_in' => $request->new_clock_in,
             'requested_clock_out' => $request->new_clock_out,
