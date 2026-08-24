@@ -228,4 +228,37 @@ class AttendanceController extends Controller
         ]);
         return redirect('/attendance/' . $id);
     }
+
+    public function application()
+    {
+        $user = auth()->user();
+
+        $requests = attendanceRequestModel::whereHas('attendance', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->where('status', '承認待ち')->get();
+
+        $formattedApplications = [];
+
+        foreach ($requests as $request) {
+            $formattedApplications[] = [
+                'id' => $request->id,
+                'approval_status' => $request->status,
+                'comment' => $request->note,
+                'date' => $request->attendance->work_date,
+                'application_date' => $request->created_at,
+            ];
+        }
+
+        return view('user.user-application-list', compact(
+            'user',
+            'formattedApplications'
+        ));
+    }
+
+    public function applicationDetail($id)
+    {
+        $application = AttendanceRequestModel::findOrFail($id);
+
+        return redirect('/attendance/' . $application->attendance_id);
+    }
 }

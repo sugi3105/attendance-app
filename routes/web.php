@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AdminController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -15,6 +16,9 @@ use App\Http\Controllers\AttendanceController;
 
 //Route::get('/', function () {
 //return view('welcome');
+Route::get('admin/login', [AdminController::class, 'showLogin']);
+Route::post('admin/login', [AdminController::class, 'login']);
+
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -23,4 +27,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/attendance', [AttendanceController::class, 'store']);
     Route::get('/attendance/{id}', [AttendanceController::class, 'detail']);
     Route::post('/attendance/{id}', [AttendanceController::class, 'update']);
+    Route::get('stamp_correction_request/list', [AttendanceController::class, 'application']);
+    //Route::post('/application', [AttendanceController::class, 'application']);
+    Route::get('/application/{id}', [AttendanceController::class, 'applicationDetail']);
 });
