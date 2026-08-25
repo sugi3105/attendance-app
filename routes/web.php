@@ -18,6 +18,7 @@ use App\Http\Controllers\AdminController;
 //return view('welcome');
 Route::get('admin/login', [AdminController::class, 'showLogin']);
 Route::post('admin/login', [AdminController::class, 'login']);
+Route::get('/admin/attendance', [AdminController::class, 'attendance']);
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
