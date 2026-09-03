@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\BreakTime;
 use App\Http\Requests\AdminLoginRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\Attendance;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
@@ -41,5 +44,100 @@ class AdminController extends Controller
         Auth::login($user);
 
         return redirect('/admin/attendance');
+    }
+
+    public function attendanceList(Request $request)
+    {
+        // 全ユーザーを取得
+        $users = User::all();
+
+        // 表示する日付を決める
+        $date = $request->date
+            ? Carbon::parse($request->date)
+            : Carbon::today();
+
+        // 前日・翌日
+        $previousDay = $date->copy()->subDay()->format('Y-m-d');
+        $nextDay = $date->copy()->addDay()->format('Y-m-d');
+
+        // 指定された日の勤怠を全て取得
+        $attendanceRecords = Attendance::whereDate(
+            'work_date',
+            $date
+        )->get();
+
+        // ユーザーを1人ずつ処理
+        foreach ($users as $user) {
+
+            // そのユーザーの指定日の勤怠を1件取得
+            $attendance = $attendanceRecords
+                ->where('user_id', $user->id)
+                ->first();
+
+            if ($attendance) {
+
+                // 初期値
+                $totalBreakMinutes = 0;
+                $totalWorkMinutes = null;
+
+                // その勤怠に紐づく休憩を取得
+                $breaks = BreakTime::where(
+                    'attendance_id',
+                    $attendance->id
+                )->get();
+
+                // 休憩時間を計算
+                foreach ($breaks as $break) {
+                    if ($break->break_start && $break->break_end) {
+
+                        $breakStart = Carbon::parse($break->break_start);
+                        $breakEnd = Carbon::parse($break->break_end);
+
+                        $totalBreakMinutes +=
+                            $breakStart->diffInMinutes($breakEnd);
+                    }
+                }
+
+                // 休憩時間をHH:MMにする
+                $attendance->total_break_time = $totalBreakMinutes > 0
+                    ? sprintf(
+                        '%02d:%02d',
+                        intdiv($totalBreakMinutes, 60),
+                        $totalBreakMinutes % 60
+                    )
+                    : '';
+
+                // 実働時間を計算
+                if ($attendance->clock_out) {
+
+                    $clockIn = Carbon::parse($attendance->clock_in);
+                    $clockOut = Carbon::parse($attendance->clock_out);
+
+                    $totalWorkMinutes =
+                        $clockIn->diffInMinutes($clockOut)
+                        - $totalBreakMinutes;
+
+                    // 合計勤務時間をHH:MMにする
+                    $attendance->total_time = sprintf(
+                        '%02d:%02d',
+                        intdiv($totalWorkMinutes, 60),
+                        $totalWorkMinutes % 60
+                    );
+                } else {
+                    $attendance->total_time = '';
+                }
+            }
+        }
+
+        return view(
+            'admin.admin-attendance-list',
+            compact(
+                'users',
+                'attendanceRecords',
+                'date',
+                'previousDay',
+                'nextDay'
+            )
+        );
     }
 }
