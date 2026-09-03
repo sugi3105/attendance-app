@@ -59,7 +59,7 @@
             </td>
             <td class="table__description">
                 @if($attendance)
-                <a class="table__item--detail-link" href="{{ url('/attendance/' . $attendance['id']) }}">詳細</a>
+                <a class="table__item--detail-link" href="{{ url('/admin/attendance/' . $attendance['id']) }}">詳細</a>
                 @endif
             </td>
         </tr>

@@ -140,4 +140,42 @@ class AdminController extends Controller
             )
         );
     }
+
+    public function detail($id)
+    {
+        $attendance = Attendance::find($id);
+
+        $user = User::find($attendance->user_id);
+
+        $breaks = BreakTime::where(
+            'attendance_id',
+            $attendance->id
+        )->get();
+
+        $formattedBreaks = [];
+
+        foreach ($breaks as $break) {
+            $formattedBreaks[] = [
+                'break_in' => $break->break_start,
+                'break_out' => $break->break_end,
+            ];
+        }
+
+        $date = Carbon::parse($attendance->work_date);
+
+        $attendanceRecord = [
+            'id' => $attendance->id,
+            'year' => $date->format('Y'),
+            'date' => $date->format('m/d'),
+            'clock_in' => $attendance->clock_in,
+            'clock_out' => $attendance->clock_out,
+            'breaks' => $formattedBreaks,
+            'comment' => $attendance->note,
+        ];
+
+        return view(
+            'admin.admin-detail',
+            compact('attendanceRecord', 'user')
+        );
+    }
 }
