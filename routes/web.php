@@ -18,10 +18,10 @@ use App\Http\Controllers\AdminController;
 //return view('welcome');
 Route::get('admin/login', [AdminController::class, 'showLogin']);
 Route::post('admin/login', [AdminController::class, 'login']);
-Route::get('/admin/attendance', [AdminController::class, 'attendance']);
-Route::get('/admin/attendance', [AdminController::class, 'attendanceList']);
+//Route::get('/admin/attendance', [AdminController::class, 'attendance']);
+Route::get('/admin/attendance/list', [AdminController::class, 'attendanceList']);
 Route::get('/admin/attendance/{id}', [AdminController::class, 'detail']);
-
+Route::post('/admin/attendance/{id}',[AdminController::class, 'update']);
 
 Route::middleware(['auth', 'verified'])->group(function () {
 

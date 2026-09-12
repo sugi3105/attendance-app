@@ -24,8 +24,8 @@ class AttendanceRequest extends FormRequest
         return [
             'comment' => ['required'],
             'new_clock_out' => ['after_or_equal:new_clock_in'],
-            'new_break_in.*' => ['after:new_clock_in', 'before:new_clock_out',],
-            'new_break_out.*' => ['before:new_clock_out'],
+            'new_break_in.*' => ['nullable', 'after:new_clock_in', 'before:new_clock_out',],
+            'new_break_out.*' => ['nullable', 'before:new_clock_out'],
 
         ];
     }

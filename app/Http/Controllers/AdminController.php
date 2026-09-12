@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Attendance;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Models\AttendanceRequest;
 
 class AdminController extends Controller
 {
@@ -152,6 +153,14 @@ class AdminController extends Controller
             $attendance->id
         )->get();
 
+        $attendanceRequest = AttendanceRequest::where(
+            'attendance_id',
+            $attendance->id
+        )->where(
+            'status',
+            '承認待ち'
+        )->first();
+
         $formattedBreaks = [];
 
         foreach ($breaks as $break) {
@@ -175,7 +184,39 @@ class AdminController extends Controller
 
         return view(
             'admin.admin-detail',
-            compact('attendanceRecord', 'user')
+            compact('attendanceRecord', 'user', 'attendanceRequest')
         );
+    }
+
+    public function update(Request $request, $id)
+    {
+        $attendance = Attendance::findOrFail($id);
+
+        $attendance->clock_in = $request->new_clock_in;
+        $attendance->clock_out = $request->new_clock_out;
+        $attendance->note = $request->comment;
+
+        $breaks = BreakTime::where('attendance_id', $attendance->id)->get();
+
+        foreach ($breaks as $index => $break) {
+           $break->break_start = $request->new_break_in[$index];
+           $break->break_end = $request->new_break_out[$index];
+           $break->save();
+        }
+
+        if (
+            !empty($request->new_break_in[1]) &&
+            !empty($request->new_break_out[1])
+        )          {
+         BreakTime::create([
+           'attendance_id' => $attendance->id,
+           'break_start' => $request->new_break_in[1],
+           'break_end' => $request->new_break_out[1],
+        ]);
+        }
+        $attendance->save();
+
+        return redirect('/admin/attendance/' . $attendance->id);
+
     }
 }
