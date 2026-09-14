@@ -225,11 +225,10 @@ class AdminController extends Controller
         ) {
             BreakTime::create([
                 'attendance_id' => $attendance->id,
-                'break_start' => $request->new_break_in[1],
-                'break_end' => $request->new_break_out[1],
+                'break_start' => $request->input('new_break_in.0'),
+                'break_end' => $request->input('new_break_out.0'),
             ]);
         }
-
 
         $attendance->save();
 
