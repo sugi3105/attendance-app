@@ -11,6 +11,7 @@ use App\Models\Attendance;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\AttendanceRequest;
+use App\Http\Requests\AdminAttendanceRequest;
 
 class AdminController extends Controller
 {
@@ -188,9 +189,23 @@ class AdminController extends Controller
         );
     }
 
-    public function update(Request $request, $id)
+    public function update(AdminAttendanceRequest $request, $id)
     {
         $attendance = Attendance::findOrFail($id);
+
+        $attendanceRequest = AttendanceRequest::where(
+            'attendance_id',
+            $attendance->id
+        )->where(
+            'status',
+            '承認待ち'
+        )->first();
+
+        if ($attendanceRequest) {
+            return back()->withErrors([
+                'attendance' => '承認待ちのため修正できません。',
+            ]);
+        }
 
         $attendance->clock_in = $request->new_clock_in;
         $attendance->clock_out = $request->new_clock_out;
@@ -199,24 +214,25 @@ class AdminController extends Controller
         $breaks = BreakTime::where('attendance_id', $attendance->id)->get();
 
         foreach ($breaks as $index => $break) {
-           $break->break_start = $request->new_break_in[$index];
-           $break->break_end = $request->new_break_out[$index];
-           $break->save();
+            $break->break_start = $request->new_break_in[$index];
+            $break->break_end = $request->new_break_out[$index];
+            $break->save();
         }
 
         if (
             !empty($request->new_break_in[1]) &&
             !empty($request->new_break_out[1])
-        )          {
-         BreakTime::create([
-           'attendance_id' => $attendance->id,
-           'break_start' => $request->new_break_in[1],
-           'break_end' => $request->new_break_out[1],
-        ]);
+        ) {
+            BreakTime::create([
+                'attendance_id' => $attendance->id,
+                'break_start' => $request->new_break_in[1],
+                'break_end' => $request->new_break_out[1],
+            ]);
         }
+
+
         $attendance->save();
 
         return redirect('/admin/attendance/' . $attendance->id);
-
     }
 }

@@ -61,10 +61,10 @@
                 <label class="form__header">{{ $index === 0 ? '休憩' : '休憩' . ($index + 1) }}</label>
                 <div class="form__input-group">
                     <input class="form__input" type="text" name="new_break_in[{{ $index }}]"
-                        value="{{ $break['break_in'] ?? '' }}">
+                        value="{{ old('new_break_in.' . $index, $break['break_in'] ?? '') }}">
                     <p>〜</p>
                     <input class="form__input" type="text" name="new_break_out[{{ $index }}]"
-                        value="{{ $break['break_out'] ?? '' }}">
+                        value="{{ old('new_break_out.' . $index, $break['break_out'] ?? '') }}">
                 </div>
             </div>
             <div class="error-message">
@@ -80,9 +80,9 @@
             <div class="form__group">
                 <label class="form__header">{{ $newBreakIndex === 0 ? '休憩' : '休憩' . ($newBreakIndex + 1) }}</label>
                 <div class="form__input-group">
-                    <input class="form__input" type="text" name="new_break_in[{{ $newBreakIndex }}]" value="">
+                    <input class="form__input" type="text" name="new_break_in[{{ $newBreakIndex }}]" value="{{ old('new_break_in.' . $newBreakIndex, '') }}">
                     <p>〜</p>
-                    <input class="form__input" type="text" name="new_break_out[{{ $newBreakIndex }}]" value="">
+                    <input class="form__input" type="text" name="new_break_out[{{ $newBreakIndex }}]" value="{{ old('new_break_out.' . $newBreakIndex, '') }}">
                 </div>
             </div>
             <div class="error-message">

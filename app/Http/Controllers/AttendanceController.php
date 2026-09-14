@@ -74,7 +74,6 @@ class AttendanceController extends Controller
                 $totalWorkMinutes =
                     $clockIn->diffInMinutes($clockOut) - $totalBreakMinutes;
             }
-
             $formattedAttendanceRecords[] = [
                 'id' => $attendance->id,
                 'date' => Carbon::parse($attendance->work_date)->format('m/d'),
