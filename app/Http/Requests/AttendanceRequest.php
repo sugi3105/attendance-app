@@ -24,7 +24,7 @@ class AttendanceRequest extends FormRequest
         return [
             'comment' => ['required'],
             'new_clock_out' => ['after_or_equal:new_clock_in'],
-            'new_break_in.*' => ['nullable', 'after:new_clock_in', 'before:new_clock_out',],
+            'new_break_in.*' => ['nullable', 'after_or_equal:new_clock_in', 'before:new_clock_out',],
             'new_break_out.*' => ['nullable', 'before:new_clock_out'],
 
         ];
@@ -36,7 +36,8 @@ class AttendanceRequest extends FormRequest
             'comment.required' => '備考を記入してください',
             'new_clock_out.after_or_equal' =>
             '出勤時間もしくは退勤時間が不適切な値です',
-            'new_break_in.*.after' => '休憩時間が不適切な値です',
+            'new_break_in.*.after_or_equal' => '休憩時間が不適切な値です',
+            'new_break_in.*.before' => '休憩時間が不適切な値です',
             'new_break_out.*.before' => '休憩時間もしくは退勤時間が不適切な値です',
         ];
     }
@@ -58,5 +59,6 @@ class AttendanceRequest extends FormRequest
                 }
             }
         });
+        //dd($validator->errors()->toArray());
     }
 }

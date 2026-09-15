@@ -45,7 +45,7 @@ class AdminController extends Controller
 
         Auth::login($user);
 
-        return redirect('/admin/attendance');
+        return redirect('/admin/attendance/list');
     }
 
     public function attendanceList(Request $request)

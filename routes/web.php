@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AdminController;
+use Illuminate\Support\Facades\Auth;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -18,10 +19,20 @@ use App\Http\Controllers\AdminController;
 //return view('welcome');
 Route::get('admin/login', [AdminController::class, 'showLogin']);
 Route::post('admin/login', [AdminController::class, 'login']);
+Route::post('/admin/logout', function () {
+    Auth::logout();
+    return redirect('/admin/login');
+});
+
+Route::post('/logout', function () {
+    Auth::logout();
+
+    return redirect('/login');
+});
 //Route::get('/admin/attendance', [AdminController::class, 'attendance']);
 Route::get('/admin/attendance/list', [AdminController::class, 'attendanceList']);
 Route::get('/admin/attendance/{id}', [AdminController::class, 'detail']);
-Route::post('/admin/attendance/{id}',[AdminController::class, 'update']);
+Route::post('/admin/attendance/{id}', [AdminController::class, 'update']);
 
 Route::middleware(['auth', 'verified'])->group(function () {
 

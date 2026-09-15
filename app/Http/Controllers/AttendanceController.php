@@ -186,7 +186,9 @@ class AttendanceController extends Controller
                         : '',
                 ];
             })->toArray(),
-            'comment' => $attendance->note,
+            'comment' => $application
+                ? $application->note
+                : $attendance->note,
             'application' => $application,
         ];
 

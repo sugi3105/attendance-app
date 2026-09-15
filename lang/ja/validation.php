@@ -122,7 +122,7 @@ return [
     'prohibited_unless'    => ':Otherが:valuesでない限り、:Attributeの入力は禁止されています。',
     'prohibits'            => ':Otherが存在している場合、:Attributeの入力は禁止されています。',
     'regex'                => ':Attributeには、正しい形式を指定してください。',
-    'required'             => ':Attributeを入力してください。',
+    'required'             => ':Attributeを入力してください',
     'required_array_keys'  => ':Attributeには、:valuesのエントリを含める必要があります。',
     'required_if'          => ':Otherが:valueの場合、:attributeを指定してください。',
     'required_if_accepted' => ':Otherを承認した場合、:attributeは必須項目です。',
