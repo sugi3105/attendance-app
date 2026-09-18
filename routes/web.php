@@ -31,6 +31,7 @@ Route::post('/logout', function () {
 });
 //Route::get('/admin/attendance', [AdminController::class, 'attendance']);
 Route::get('/admin/attendance/list', [AdminController::class, 'attendanceList']);
+Route::get('/admin/stamp_correction_request/list', [AdminController::class, 'applicationList']);
 Route::get('/admin/attendance/{id}', [AdminController::class, 'detail']);
 Route::post('/admin/attendance/{id}', [AdminController::class, 'update']);
 

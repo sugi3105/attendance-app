@@ -143,6 +143,16 @@ class AdminController extends Controller
         );
     }
 
+    public function applicationList()
+    {
+        $applications = AttendanceRequest::all();
+
+        return view(
+            'admin.admin-application-list',
+            compact('applications')
+        );
+    }
+
     public function detail($id)
     {
         $attendance = Attendance::find($id);
