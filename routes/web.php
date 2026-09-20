@@ -31,7 +31,9 @@ Route::post('/logout', function () {
 });
 //Route::get('/admin/attendance', [AdminController::class, 'attendance']);
 Route::get('/admin/attendance/list', [AdminController::class, 'attendanceList']);
+Route::get('/admin/staff/list', [AdminController::class, 'staffList']);
 Route::get('/admin/stamp_correction_request/list', [AdminController::class, 'applicationList']);
+Route::get('/admin/attendance/staff/{id}', [AdminController::class, 'staffAttendance']);
 Route::get('/admin/attendance/{id}', [AdminController::class, 'detail']);
 Route::post('/admin/attendance/{id}', [AdminController::class, 'update']);
 
@@ -43,6 +45,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/attendance/{id}', [AttendanceController::class, 'detail']);
     Route::post('/attendance/{id}', [AttendanceController::class, 'update']);
     Route::get('stamp_correction_request/list', [AttendanceController::class, 'application']);
+
     //Route::post('/application', [AttendanceController::class, 'application']);
     Route::get('/application/{id}', [AttendanceController::class, 'applicationDetail']);
 });
