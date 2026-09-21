@@ -178,12 +178,17 @@ class AdminController extends Controller
 
         $formattedAttendanceRecords = [];
 
-        foreach ($attendanceRecords as $attendance) {
+        $daysInMonth = $date->daysInMonth;
 
-            $breaks = BreakTime::where(
-                'attendance_id',
-                $attendance->id
-            )->get();
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $workDate = $date->copy()->day($day);
+
+            $attendance = $attendanceRecords
+                ->where('work_date', $workDate->format('Y-m-d'))
+                ->first();
+            $breaks = $attendance
+                ? BreakTime::where('attendance_id', $attendance->id)->get()
+                : collect();
 
             $totalBreakMinutes = 0;
 
@@ -199,7 +204,7 @@ class AdminController extends Controller
 
             $totalWorkMinutes = null;
 
-            if ($attendance->clock_out) {
+            if ($attendance && $attendance->clock_out) {
                 $clockIn = Carbon::parse($attendance->clock_in);
                 $clockOut = Carbon::parse($attendance->clock_out);
 
@@ -209,12 +214,12 @@ class AdminController extends Controller
             }
 
             $formattedAttendanceRecords[] = [
-                'id' => $attendance->id,
-                'date' => Carbon::parse($attendance->work_date)->format('m/d'),
-                'clock_in' => $attendance->clock_in
+                'id' => $attendance ? $attendance->id : null,
+                'date' => $workDate->format('m/d'),
+                'clock_in' => $attendance && $attendance->clock_in
                     ? Carbon::parse($attendance->clock_in)->format('H:i')
                     : '',
-                'clock_out' => $attendance->clock_out
+                'clock_out' => $attendance && $attendance->clock_out
                     ? Carbon::parse($attendance->clock_out)->format('H:i')
                     : '',
                 'total_break_time' => $totalBreakMinutes > 0
