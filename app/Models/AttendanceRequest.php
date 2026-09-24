@@ -27,4 +27,16 @@ class AttendanceRequest extends Model
     {
         return $this->hasMany(BreakRequest::class);
     }
+
+    public function user()
+    {
+        return $this->hasOneThrough(
+            User::class,
+            Attendance::class,
+            'id',
+            'id',
+            'attendance_id',
+            'user_id'
+        );
+    }
 }

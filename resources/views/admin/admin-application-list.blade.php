@@ -37,7 +37,7 @@
                     </th>
                 </tr>
                 @foreach ($applications as $application)
-                @if ($application->approval_status === '承認待ち')
+                @if ($application->status === '承認待ち')
                 <tr class="table__row">
                     <td class="table__description">
                         <p class="table__description--item">{{ $application->approval_status }}</p>
@@ -46,7 +46,7 @@
                         <p class="table__description--item">{{ $application->user->name }}</p>
                     </td>
                     <td class="table__description">
-                        <p class="table__description--item">{{ \Carbon\Carbon::parse($application->AttendanceRecord->date)->format('Y/m/d') }}</p>
+                        <p class="table__description--item">{{ \Carbon\Carbon::parse($application->attendance->work_date)->format('Y/m/d') }}</p>
                     </td>
                     <td class="table__description">
                         <p class="table__description--item">{{ $application->comment }}</p>
@@ -88,16 +88,16 @@
                 @if ($application->approval_status === '承認済み')
                 <tr class="table__row">
                     <td class="table__description">
-                        <p class="table__description--item">{{ $application->approval_status }}</p>
+                        <p class="table__description--item">{{ $application->status }}</p>
                     </td>
                     <td class="table__description">
                         <p class="table__description--item">{{ $application->user->name }}</p>
                     </td>
                     <td class="table__description">
-                        <p class="table__description--item">{{ \Carbon\Carbon::parse($application->AttendanceRecord->date)->format('Y/m/d') }}</p>
+                        <p class="table__description--item">{{ \Carbon\Carbon::parse($application->attendance->work_date)->format('Y/m/d') }}</p>
                     </td>
                     <td class="table__description">
-                        <p class="table__description--item">{{ $application->comment }}</p>
+                        <p class="table__description--item">{{ $application->note }}</p>
                     </td>
                     <td class="table__description">
                         <p class="table__description--item">{{ \Carbon\Carbon::parse($application->application_date)->format('Y/m/d') }}</p>

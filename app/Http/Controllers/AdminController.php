@@ -342,4 +342,18 @@ class AdminController extends Controller
 
         return redirect('/admin/attendance/' . $attendance->id);
     }
+
+    public function applicationDetail($id)
+    {
+        $application = AttendanceRequest::findOrFail($id);
+
+        $attendance = $application->attendance;
+
+        $user = User::findOrFail($attendance->user_id);
+
+        return view(
+            'admin.admin-application-detail',
+            compact('application', 'attendance', 'user')
+        );
+    }
 }
