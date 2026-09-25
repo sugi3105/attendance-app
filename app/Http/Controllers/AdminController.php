@@ -356,4 +356,20 @@ class AdminController extends Controller
             compact('application', 'attendance', 'user')
         );
     }
+
+    public function approve($id)
+    {
+        $application = AttendanceRequest::findOrFail($id);
+
+        $attendance = Attendance::findOrFail($application->attendance_id);
+
+        $attendance->clock_in = $application->requested_clock_in;
+        $attendance->clock_out = $application->requested_clock_out;
+        $attendance->save();
+
+        $application->status = '承認済み';
+        $application->save();
+
+        return redirect('/admin/stamp_correction_request/list');
+    }
 }

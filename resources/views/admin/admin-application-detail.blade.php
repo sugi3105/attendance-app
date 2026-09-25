@@ -28,9 +28,9 @@
             <div class="applied-form__group">
                 <label class="applied-form__header">出勤・退勤</label>
                 <div class="applied-form__input-group">
-                    <input class="applied-form__input" type="text" value="{{ $application->new_clock_in }}" readonly>
+                    <input class="applied-form__input" type="text" value="{{ $application->requested_clock_in }}" readonly>
                     <p class="wavy-line">〜</p>
-                    <input class="applied-form__input" type="text" value="{{ $application->new_clock_out }}" readonly>
+                    <input class="applied-form__input" type="text" value="{{ $application->requested_clock_out }}" readonly>
                 </div>
             </div>
             {{-- 休憩は「休憩」「休憩2」「休憩3」…とセクションを分けて表示 --}}
@@ -63,9 +63,9 @@
             </div>
         </div>
         <div class="applied-form__button">
-            @if ($application->approval_status === '承認待ち')
+            @if ($application->status === '承認待ち')
             <button class="applied-form__button--submit" type="submit">承認</button>
-            @elseif ($application->approval_status === '承認済み')
+            @elseif ($application->status === '承認済み')
             <p class="applied-form__item">承認済み</p>
             @endif
         </div>

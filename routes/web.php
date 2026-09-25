@@ -38,6 +38,10 @@ Route::get(
     '/stamp_correction_request/approve/{id}',
     [AdminController::class, 'applicationDetail']
 );
+Route::post(
+    '/stamp_correction_request/approve/{id}',
+    [AdminController::class, 'approve']
+);
 Route::get('/admin/attendance/{id}', [AdminController::class, 'detail']);
 Route::post('/admin/attendance/{id}', [AdminController::class, 'update']);
 

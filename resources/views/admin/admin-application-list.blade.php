@@ -85,7 +85,7 @@
                     </th>
                 </tr>
                 @foreach ($applications as $application)
-                @if ($application->approval_status === '承認済み')
+                @if ($application->status === '承認済み')
                 <tr class="table__row">
                     <td class="table__description">
                         <p class="table__description--item">{{ $application->status }}</p>
