@@ -44,7 +44,7 @@ Route::post(
 );
 Route::get('/admin/attendance/{id}', [AdminController::class, 'detail']);
 Route::post('/admin/attendance/{id}', [AdminController::class, 'update']);
-
+Route::post('/export', [AdminController::class, 'export']);
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/attendance', [AttendanceController::class, 'index']);

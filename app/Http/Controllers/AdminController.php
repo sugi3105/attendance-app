@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\AttendanceRequest;
 use App\Http\Requests\AdminAttendanceRequest;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AdminController extends Controller
 {
@@ -344,6 +345,91 @@ class AdminController extends Controller
         $attendance->save();
 
         return redirect('/admin/attendance/' . $attendance->id);
+    }
+
+    public function export(Request $request)
+    {
+        $userId = $request->user_id;
+        $yearMonth = $request->year_month;
+
+        $attendances = Attendance::where('user_id', $userId)
+            ->whereYear('work_date', substr($yearMonth, 0, 4))
+            ->whereMonth('work_date', substr($yearMonth, 5, 2))
+            ->get();
+
+        $csvData = [];
+
+        $csvData[] = [
+            '日付',
+            '出勤',
+            '退勤',
+            '休憩',
+            '合計',
+        ];
+
+        foreach ($attendances as $attendance) {
+
+            $breaks = BreakTime::where('attendance_id', $attendance->id)->get();
+
+            $totalBreakMinutes = 0;
+
+            foreach ($breaks as $break) {
+                if ($break->break_start && $break->break_end) {
+                    $breakStart = Carbon::parse($break->break_start);
+                    $breakEnd = Carbon::parse($break->break_end);
+
+                    $totalBreakMinutes += $breakStart->diffInMinutes($breakEnd);
+                }
+            }
+
+            $totalBreakTime = $totalBreakMinutes > 0
+                ? sprintf(
+                    '%02d:%02d',
+                    intdiv($totalBreakMinutes, 60),
+                    $totalBreakMinutes % 60
+                )
+                : '';
+
+            $totalWorkMinutes = null;
+
+            if ($attendance->clock_out) {
+                $clockIn = Carbon::parse($attendance->clock_in);
+                $clockOut = Carbon::parse($attendance->clock_out);
+
+                $totalWorkMinutes =
+                    $clockIn->diffInMinutes($clockOut)
+                    - $totalBreakMinutes;
+            }
+
+            $csvData[] = [
+                $attendance->work_date,
+                $attendance->clock_in,
+                $attendance->clock_out,
+                $totalBreakTime,
+                $totalWorkMinutes !== null
+                    ? sprintf(
+                        '%02d:%02d',
+                        intdiv($totalWorkMinutes, 60),
+                        $totalWorkMinutes % 60
+                    )
+                    : '',
+            ];
+        }
+
+        return new StreamedResponse(function () use ($csvData) {
+            $handle = fopen('php://output', 'w');
+
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            foreach ($csvData as $row) {
+                fputcsv($handle, $row);
+            }
+
+            fclose($handle);
+        }, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="attendance.csv"',
+        ]);
     }
 
     public function applicationDetail($id)
