@@ -327,15 +327,18 @@ class AdminController extends Controller
             $break->save();
         }
 
-        if (
-            !empty($request->new_break_in[1]) &&
-            !empty($request->new_break_out[1])
-        ) {
-            BreakTime::create([
-                'attendance_id' => $attendance->id,
-                'break_start' => $request->input('new_break_in.0'),
-                'break_end' => $request->input('new_break_out.0'),
-            ]);
+        foreach ($request->new_break_in as $index => $breakStart) {
+            $breakEnd = $request->new_break_out[$index] ?? null;
+
+            if ($breakStart && $breakEnd) {
+                if (!isset($breaks[$index])) {
+                    BreakTime::create([
+                        'attendance_id' => $attendance->id,
+                        'break_start' => $breakStart,
+                        'break_end' => $breakEnd,
+                    ]);
+                }
+            }
         }
 
         $attendance->save();
@@ -368,6 +371,16 @@ class AdminController extends Controller
         $attendance->save();
 
         $application->status = '承認済み';
+
+        $breakRequests = $application->breakRequests;
+
+        foreach ($breakRequests as $breakRequest) {
+            BreakTime::create([
+                'attendance_id' => $attendance->id,
+                'break_start' => $breakRequest->break_start,
+                'break_end' => $breakRequest->break_end,
+            ]);
+        }
         $application->save();
 
         return redirect('/admin/stamp_correction_request/list');

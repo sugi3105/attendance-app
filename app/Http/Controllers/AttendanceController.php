@@ -8,6 +8,7 @@ use App\Models\BreakTime;
 use App\Models\AttendanceRequest as AttendanceRequestModel;
 use Illuminate\Http\Request;
 use App\Http\Requests\AttendanceRequest;
+use App\Models\BreakRequest;
 
 class AttendanceController extends Controller
 {
@@ -220,13 +221,25 @@ class AttendanceController extends Controller
     public function update(AttendanceRequest $request, $id)
     {
         $attendance = Attendance::where('id', $id)->first();
-        AttendanceRequestModel::create([
+        $attendanceRequest = AttendanceRequestModel::create([
             'attendance_id' => $attendance->id,
             'requested_clock_in' => $request->new_clock_in,
             'requested_clock_out' => $request->new_clock_out,
             'note' => $request->comment,
             'status' => '承認待ち',
         ]);
+
+        foreach ($request->new_break_in as $index => $breakStart) {
+            $breakEnd = $request->new_break_out[$index] ?? null;
+
+            if ($breakStart && $breakEnd) {
+                BreakRequest::create([
+                    'attendance_request_id' => $attendanceRequest->id,
+                    'break_start' => $breakStart,
+                    'break_end' => $breakEnd,
+                ]);
+            }
+        }
         return redirect('/attendance/' . $id);
     }
 
