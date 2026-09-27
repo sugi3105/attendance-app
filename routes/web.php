@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ReportController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -56,4 +57,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     //Route::post('/application', [AttendanceController::class, 'application']);
     Route::get('/application/{id}', [AttendanceController::class, 'applicationDetail']);
+    Route::get('/reports', [ReportController::class, 'index']);
 });

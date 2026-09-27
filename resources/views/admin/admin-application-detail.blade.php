@@ -21,34 +21,34 @@
             <div class="applied-form__group">
                 <label class="applied-form__header">日付</label>
                 <div class="applied-form__input-group">
-                    <input class="applied-form__input" type="text" value="{{ \Carbon\Carbon::parse($attendance->work_date)->format('Y年') }}" readonly>
-                    <input class="applied-form__input" type="text" value="{{ \Carbon\Carbon::parse($attendance->work_date)->format('n月j日') }}" readonly>
+                    <input class="applied-form__input" type="text" value="{{ $application->new_date->format('Y年') }}" readonly>
+                    <input class="applied-form__input"  type="text"  value="{{ $application->new_date->format('n月j日') }}" readonly>
                 </div>
             </div>
             <div class="applied-form__group">
                 <label class="applied-form__header">出勤・退勤</label>
                 <div class="applied-form__input-group">
-                    <input class="applied-form__input" type="text" value="{{ $application->requested_clock_in }}" readonly>
+                    <input class="applied-form__input" type="text" value="{{ $application->new_clock_in }}" readonly>
                     <p class="wavy-line">〜</p>
-                    <input class="applied-form__input" type="text" value="{{ $application->requested_clock_out }}" readonly>
+                    <input class="applied-form__input" type="text" value="{{ $application->new_clock_out }}" readonly>
                 </div>
             </div>
             {{-- 休憩は「休憩」「休憩2」「休憩3」…とセクションを分けて表示 --}}
-            @foreach($application->breakRequests as $index => $break)
-            <div class="applied-form__group">
-                <label class="applied-form__header">{{ $index === 0 ? '休憩' : '休憩' . ($index + 1) }}</label>
-                <div class="applied-form__input-group">
-                    <input class="applied-form__input readonly" type="text" name="new_break_start[]"
-                        value="{{ \Carbon\Carbon::parse($break->break_start)->format('H:i') }}" readonly>
-                    <p>〜</p>
-                    <input class="applied-form__input readonly" type="text" name="new_break_end[]"
-                        value="{{ $break->break_end ? \Carbon\Carbon::parse($break->break_end)->format('H:i') : '' }}" readonly>
+            @foreach($application->proposalBreaks as $index => $break)
+                <div class="applied-form__group">
+                    <label class="applied-form__header">{{ $index === 0 ? '休憩' : '休憩' . ($index + 1) }}</label>
+                    <div class="applied-form__input-group">
+                        <input class="applied-form__input readonly" type="text" name="new_break_in[]"
+                            value="{{ \Carbon\Carbon::parse($break->break_in)->format('H:i') }}" readonly>
+                        <p>〜</p>
+                        <input class="applied-form__input readonly" type="text" name="new_break_out[]"
+                            value="{{ $break->break_out ? \Carbon\Carbon::parse($break->break_out)->format('H:i') : '' }}" readonly>
+                    </div>
                 </div>
-            </div>
             @endforeach
             {{-- Figma に合わせ、末尾に空の休憩スロットを1つ表示 --}}
             <div class="applied-form__group">
-                <label class="applied-form__header">{{ $application->breakRequests->count() === 0 ? '休憩' : '休憩' . ($application->breakRequests->count() + 1) }}</label>
+                <label class="applied-form__header">{{ $application->proposalBreaks->count() === 0 ? '休憩' : '休憩' . ($application->proposalBreaks->count() + 1) }}</label>
                 <div class="applied-form__input-group">
                     <input class="applied-form__input readonly" type="text" value="" readonly>
                     <p>〜</p>
@@ -58,14 +58,14 @@
             <div class="applied-form__group">
                 <label class="applied-form__header">備考</label>
                 <div class="applied-form__input-group">
-                    <textarea class="applied-form__textarea" name="comment" readonly>{{ $application->note }}</textarea>
+                    <textarea class="applied-form__textarea" name="comment" readonly>{{ $application->comment }}</textarea>
                 </div>
             </div>
         </div>
         <div class="applied-form__button">
-            @if ($application->status === '承認待ち')
+            @if ($application->approval_status === '承認待ち')
             <button class="applied-form__button--submit" type="submit">承認</button>
-            @elseif ($application->status === '承認済み')
+            @elseif ($application->approval_status === '承認済み')
             <p class="applied-form__item">承認済み</p>
             @endif
         </div>

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,7 +23,7 @@
                 <nav class="inner__group">
                     <a class="inner__group--item" href="/admin/attendance/list">勤怠一覧</a>
                     <a class="inner__group--item" href="/admin/staff/list">スタッフ一覧</a>
-                    <a class="inner__group--item" href="/admin/stamp_correction_request/list">申請一覧</a>
+                    <a class="inner__group--item" href="/stamp_correction_request/list">申請一覧</a>
                     <button class="inner__group--item logout-button">
                         ログアウト
                     </button>
@@ -37,5 +36,4 @@
         @yield('content')
     </main>
 </body>
-
 </html>
