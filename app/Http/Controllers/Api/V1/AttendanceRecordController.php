@@ -8,6 +8,8 @@ use App\Http\Requests\Api\V1\StoreAttendanceRecordRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\AttendanceRecordResource;
 use App\Models\Attendance;
+use App\Http\Requests\Api\V1\UpdateAttendanceRecordRequest;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceRecordController extends Controller
 {
@@ -89,5 +91,58 @@ class AttendanceRecordController extends Controller
         return (new AttendanceRecordResource($attendance))
             ->response()
             ->setStatusCode(201);
+    }
+
+    public function update(
+        UpdateAttendanceRecordRequest $request,
+        Attendance $attendanceRecord
+    ) {
+        $this->authorize('update', $attendanceRecord);
+
+        $validated = $request->validated();
+
+        $data = [];
+
+        if (array_key_exists('user_id', $validated)) {
+            $data['user_id'] = $validated['user_id'];
+        }
+
+        if (array_key_exists('date', $validated)) {
+            $data['work_date'] = $validated['date'];
+        }
+
+        if (array_key_exists('clock_in', $validated)) {
+            $data['clock_in'] = $validated['clock_in'];
+        }
+
+        if (array_key_exists('clock_out', $validated)) {
+            $data['clock_out'] = $validated['clock_out'];
+        }
+
+        if (array_key_exists('comment', $validated)) {
+            $data['note'] = $validated['comment'];
+        }
+
+        if (!empty($data)) {
+            $attendanceRecord->fill($data);
+            $attendanceRecord->save();
+        }
+
+        $attendanceRecord->load([
+            'user',
+            'breaks',
+            'attendanceRequests.breakRequests',
+        ]);
+
+        return new AttendanceRecordResource($attendanceRecord);
+    }
+
+    public function destroy(Attendance $attendanceRecord)
+    {
+        $this->authorize('delete', $attendanceRecord);
+
+        $attendanceRecord->delete();
+
+        return response()->noContent();
     }
 }

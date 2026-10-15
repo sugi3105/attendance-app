@@ -33,3 +33,18 @@ Route::middleware('auth:sanctum')->post(
     '/v1/attendance-records',
     [AttendanceRecordController::class, 'store']
 );
+
+Route::middleware('auth:sanctum')->put(
+    '/v1/attendance-records/{attendanceRecord}',
+    [AttendanceRecordController::class, 'update']
+);
+
+Route::middleware('auth:sanctum')->patch(
+    '/v1/attendance-records/{attendanceRecord}',
+    [AttendanceRecordController::class, 'update']
+);
+
+Route::middleware('auth:sanctum')->delete(
+    '/v1/attendance-records/{attendanceRecord}',
+    [AttendanceRecordController::class, 'destroy']
+);
