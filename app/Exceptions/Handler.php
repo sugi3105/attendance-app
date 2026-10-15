@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -26,5 +28,19 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    public function render($request, Throwable $exception)
+    {
+        if (
+            $request->is('api/*')
+            && $exception instanceof ModelNotFoundException
+        ) {
+            return response()->json([
+                'error' => '勤怠情報が見つかりませんでした。',
+            ], 404);
+        }
+
+        return parent::render($request, $exception);
     }
 }
