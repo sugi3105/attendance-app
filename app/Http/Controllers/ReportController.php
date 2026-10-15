@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Attendance;
+use App\Models\BreakTime;
 use Carbon\Carbon;
 
 class ReportController extends Controller
@@ -120,9 +121,69 @@ class ReportController extends Controller
             ];
         }
 
+        $anomalies = [
+            'late_count' => 0,
+            'early_leave_count' => 0,
+            'long_work_count' => 0,
+        ];
+
+        $currentMonthAttendances = Attendance::where('user_id', $user->id)
+            ->whereYear('work_date', Carbon::now()->year)
+            ->whereMonth('work_date', Carbon::now()->month)
+            ->get();
+
+        foreach ($currentMonthAttendances as $attendance) {
+
+            if (
+                $attendance->clock_in &&
+                Carbon::parse($attendance->clock_in)->format('H:i:s') > '09:00:00'
+            ) {
+                $anomalies['late_count']++;
+            }
+
+            if (
+                $attendance->clock_out &&
+                Carbon::parse($attendance->clock_out)->format('H:i:s') < '18:00:00'
+            ) {
+                $anomalies['early_leave_count']++;
+            }
+
+            if ($attendance->clock_in && $attendance->clock_out) {
+
+                $clockIn = Carbon::parse($attendance->clock_in);
+                $clockOut = Carbon::parse($attendance->clock_out);
+
+                $workMinutes = $clockIn->diffInMinutes($clockOut);
+
+                $breaks = BreakTime::where(
+                    'attendance_id',
+                    $attendance->id
+                )->get();
+
+                $totalBreakMinutes = 0;
+
+                foreach ($breaks as $break) {
+                    if ($break->break_start && $break->break_end) {
+                        $breakStart = Carbon::parse($break->break_start);
+                        $breakEnd = Carbon::parse($break->break_end);
+
+                        $totalBreakMinutes +=
+                            $breakStart->diffInMinutes($breakEnd);
+                    }
+                }
+
+                $workMinutes -= $totalBreakMinutes;
+
+                if ($workMinutes > 600) {
+                    $anomalies['long_work_count']++;
+                }
+            }
+        }
+
         return view('reports.index', compact(
             'summary',
-            'monthlyTrend'
+            'monthlyTrend',
+            'anomalies'
         ));
     }
 }
