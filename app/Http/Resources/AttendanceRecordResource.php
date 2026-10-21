@@ -18,18 +18,19 @@ class AttendanceRecordResource extends JsonResource
             'id' => $this->id,
             'user_id' => $this->user_id,
             'date' => $this->work_date,
-            'status' => $this->status,
             'clock_in' => $this->clock_in,
             'clock_out' => $this->clock_out,
+            'total_time' => $this->total_time,
+            'total_break_time' => $this->total_break_time,
             'comment' => $this->note,
 
             'user' => UserResource::make($this->whenLoaded('user')),
 
-            'breaks' => BreakTimeResource::collection(
+            'breaks' => AttendanceBreakResource::collection(
                 $this->whenLoaded('breaks')
             ),
 
-            'correction_requests' => AttendanceRequestResource::collection(
+            'applications' => ApplicationResource::collection(
                 $this->whenLoaded('attendanceRequests')
             ),
         ];
