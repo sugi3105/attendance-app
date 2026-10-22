@@ -20,8 +20,6 @@ class AttendanceRecordResource extends JsonResource
             'date' => $this->work_date,
             'clock_in' => $this->clock_in,
             'clock_out' => $this->clock_out,
-            'total_time' => $this->total_time,
-            'total_break_time' => $this->total_break_time,
             'comment' => $this->note,
 
             'user' => UserResource::make($this->whenLoaded('user')),
@@ -31,8 +29,11 @@ class AttendanceRecordResource extends JsonResource
             ),
 
             'applications' => ApplicationResource::collection(
-                $this->whenLoaded('attendanceRequests')
+                $this->whenLoaded('applications')
             ),
+
+            'total_time' => $this->total_time,
+            'total_break_time' => $this->total_break_time,
         ];
     }
 }

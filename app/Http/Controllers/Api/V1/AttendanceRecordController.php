@@ -19,7 +19,7 @@ class AttendanceRecordController extends Controller
     public function index(IndexAttendanceRecordRequest $request)
     {
         $query = Attendance::query()
-            ->with(['user', 'breaks', 'attendanceRequests.breakRequests']);
+            ->with('user');
 
         if ($request->filled('user_id')) {
             $query->where('user_id', $request->input('user_id'));
@@ -61,7 +61,7 @@ class AttendanceRecordController extends Controller
         $attendanceRecord->load([
             'user',
             'breaks',
-            'attendanceRequests.breakRequests',
+            'applications',
         ]);
 
         return new AttendanceRecordResource($attendanceRecord);
@@ -85,7 +85,7 @@ class AttendanceRecordController extends Controller
         $attendance->load([
             'user',
             'breaks',
-            'attendanceRequests.breakRequests',
+            'applications',
         ]);
 
         return (new AttendanceRecordResource($attendance))
@@ -131,7 +131,7 @@ class AttendanceRecordController extends Controller
         $attendanceRecord->load([
             'user',
             'breaks',
-            'attendanceRequests.breakRequests',
+            'applications',
         ]);
 
         return new AttendanceRecordResource($attendanceRecord);

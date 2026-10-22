@@ -35,6 +35,11 @@ class UpdateAttendanceRecordRequest extends FormRequest
             $attendanceRecord?->clock_in
         );
 
+        $clockOut = $this->input(
+            'clock_out',
+            $attendanceRecord?->clock_out
+        );
+
         return [
             'user_id' => [
                 'sometimes',
@@ -52,11 +57,35 @@ class UpdateAttendanceRecordRequest extends FormRequest
                     ->ignore($attendanceRecord?->id),
             ],
 
+
+
             'clock_in' => [
                 'sometimes',
                 'required',
                 'date_format:H:i:s',
+                function ($attribute, $value, $fail) use ($clockOut) {
+                    if (
+                        ! is_string($value)
+                        || ! preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/', $value)
+                    ) {
+                        return;
+                    }
+
+                    if (
+                        $clockOut !== null
+                        && $clockOut !== ''
+                        && $value >= $clockOut
+                    ) {
+                        $fail(
+                            '退勤時刻は出勤時刻より後の時刻を指定してください。'
+                        );
+                    }
+                },
             ],
+
+
+
+
 
             'clock_out' => [
                 'sometimes',

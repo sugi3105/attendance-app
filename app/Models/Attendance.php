@@ -34,6 +34,11 @@ class Attendance extends Model
         return $this->hasMany(AttendanceRequest::class);
     }
 
+    public function applications()
+    {
+        return $this->hasMany(AttendanceRequest::class);
+    }
+
     public function getTotalBreakTimeAttribute(): string
     {
         $totalMinutes = 0;
