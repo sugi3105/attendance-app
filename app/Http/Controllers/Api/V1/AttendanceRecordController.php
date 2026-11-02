@@ -71,27 +71,22 @@ class AttendanceRecordController extends Controller
     {
         $validated = $request->validated();
 
-        $attendance = Attendance::create([
-            'user_id' => $validated['user_id'],
-            'status' => isset($validated['clock_out'])
-                ? '退勤済'
-                : '出勤中',
+        $attendance = $request->user()->attendances()->create([
+            'status' => isset($validated['clock_out']) ? '退勤済' : '出勤中',
             'work_date' => $validated['date'],
             'clock_in' => $validated['clock_in'],
             'clock_out' => $validated['clock_out'] ?? null,
             'note' => $validated['comment'] ?? null,
         ]);
 
-        $attendance->load([
-            'user',
-            'breaks',
-            'applications',
-        ]);
+        $attendance->load(['user', 'breaks', 'applications']);
 
         return (new AttendanceRecordResource($attendance))
             ->response()
             ->setStatusCode(201);
     }
+
+
 
     public function update(
         UpdateAttendanceRecordRequest $request,

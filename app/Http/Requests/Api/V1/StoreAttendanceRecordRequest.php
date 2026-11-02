@@ -23,17 +23,11 @@ class StoreAttendanceRecordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => [
-                'required',
-                'integer',
-                'exists:users,id',
-            ],
-
             'date' => [
                 'required',
                 'date_format:Y-m-d',
                 Rule::unique('attendances', 'work_date')
-                    ->where('user_id', $this->input('user_id')),
+                    ->where('user_id', $this->user()->id),
             ],
 
             'clock_in' => [
